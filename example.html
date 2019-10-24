@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DRUID</title>
+<style type="text/css">
+header {
+	display: flex;
+	align-items: center;
+	margin: 1em 0;
+}
+header span {
+	font-family: Arial, Verdana;
+	display: inline-block;
+	background-color: #008fbe;
+	color: #fff;
+	padding: .5em 0;
+	width: 2em; height: 1em;
+	margin-right: .3em;
+	text-align: center;
+	font-weight: bold;
+}
+header span.verde {
+	background-color: #c2d100;
+}
+button {
+	display: inline-block;
+	margin: 5px 0;
+}
+</style>
+<script type="text/javascript" src="sdk/druid.js"></script>
+<script type="text/javascript">
+DRUID.init({scope: '711835520766204-jssdktestapp'}, 'sdk/test.conf.json');
+</script>
+</head>
+<body>
+<header>
+	<span>D</span><span>R</span><span>U</span>
+	<span class="verde">I</span><span class="verde">D</span>
+</header>
+<section>
+	<button id="getUrlLogin">getUrlLogin</button>
+	<a style="display: none;" id="iniciarsesion" href="" target="_blank">Iniciar sesión</a>
+	<br/>
+	<button id="getUrlRegister">getUrlRegister</button>
+	<a style="display: none;" id="a_getUrlRegister" href="" target="_blank">Registro</a>
+	<br/>
+	<button id="getUrlEditAccount">getUrlEditAccount</button>
+	<a style="display: none;" id="a_getUrlEditAccount" href="" target="_blank">Editar cuenta</a>
+	<br/>
+	<button id="getUrlCompleteAccount">getUrlCompleteAccount</button>
+	<a style="display: none;" id="a_getUrlCompleteAccount" href="" target="_blank">Completar cuenta</a>
+	<hr>
+	<button id="getUserLogged">getUserLogged</button>
+	<span id="span_getUserLogged"></span>
+	<br/>
+	<button id="isConnected">isConnected</button>
+	<span id="span_isConnected"></span>
+	<br/>
+	<button id="checkUserComplete">checkUserComplete</button>
+	<span id="span_checkUserComplete"></span>
+	<br/>
+	<button id="getUserLoggedOid">getUserLoggedOid</button>
+	<span id="span_getUserLoggedOid"></span>
+	<hr>
+	<button id="logoutUser">logoutUser</button>
+	<span id="span_logoutUser"></span>
+	<hr>
+	<div id="user"></div>
+</section>
+<script type="text/javascript">
+// getUrlLogin
+document.getElementById('getUrlLogin').onclick = function() {
+	var a = document.getElementById('iniciarsesion');
+	a.removeAttribute('style')
+	a.href = DRUID.getUrlLogin();
+}
+// getUrlRegister
+document.getElementById('getUrlRegister').onclick = function() {
+	var a = document.getElementById('a_getUrlRegister');
+	a.removeAttribute('style')
+	a.href = DRUID.getUrlRegister(null, null, {
+		email: 'test@test.com',
+	});
+}
+// getUrlEditAccount
+document.getElementById('getUrlEditAccount').onclick = function() {
+	var a = document.getElementById('a_getUrlEditAccount');
+	a.removeAttribute('style')
+	a.href = DRUID.getUrlEditAccount()
+}
+// getUrlCompleteAccount
+document.getElementById('getUrlCompleteAccount').onclick = function() {
+	var a = document.getElementById('a_getUrlCompleteAccount');
+	a.removeAttribute('style')
+	a.href = DRUID.getUrlCompleteAccount()
+}
+
+// --------------------------------------
+
+// getUserLogged
+document.getElementById('getUserLogged').onclick = function() {
+	var span = document.getElementById('span_getUserLogged');
+	DRUID.getUserLogged().then(function(data) {
+		console.log(data);
+		span.innerHTML = 'OK';// + JSON.stringify(data.content.datas);
+	}, function() {
+		span.innerHTML = 'No';
+	});
+}
+// isConnected
+document.getElementById('isConnected').onclick = function() {
+	var span = document.getElementById('span_isConnected');
+	DRUID.isConnected().then(function(data) {
+		console.log(data);
+		span.innerHTML = 'Conectado!';
+	}, function() {
+		span.innerHTML = 'No';
+	});
+}
+// checkUserComplete
+document.getElementById('checkUserComplete').onclick = function() {
+	var span = document.getElementById('span_checkUserComplete');
+	DRUID.checkUserComplete().then(function(data) {
+		span.innerHTML = 'Si';
+	}, function() {
+		span.innerHTML = 'No';
+	});
+}
+//getUserLoggedOid
+document.getElementById('getUserLoggedOid').onclick = function() {
+	var span = document.getElementById('span_getUserLoggedOid');
+	DRUID.getUserLoggedOid().then(function(oid) {
+		span.innerHTML = oid;
+	}, function() {
+		span.innerHTML = 'Error';
+	});
+}
+// --------------------------------------
+
+// logoutUser
+document.getElementById('logoutUser').onclick = function() {
+	var span = document.getElementById('span_logoutUser');
+	DRUID.logoutUser().then(function() {
+		span.innerHTML = 'OK';
+	}, function() {
+		span.innerHTML = 'Error';
+	});	
+}
+
+// --------------------------------------
+
+document.addEventListener('DRUID.init', function() {
+
+	var userdiv = document.getElementById('user');
+	DRUID.isConnected().then(function(data) {
+		// Conectado
+		DRUID.getUserLogged().then(function(data) {
+			userdiv.innerHTML = 'Usuario conectado: '+data.content.datas.name.value+' ('+ data.content.ids.email.value +')';
+		}, function() {
+			userdiv.innerHTML = 'isConnected pero no logged ¿?';
+		});
+	}, function() {
+		// No conectado
+		userdiv.innerHTML = 'Usuario NO conectado';
+	});
+
+});
+
+document.addEventListener('DRUID.login', function() {
+	alert('Evento login...');
+	window.location.href = '/';
+});
+
+document.addEventListener('DRUID.logout', function() {
+	var userdiv = document.getElementById('user');
+	userdiv.innerHTML = 'Sesión cerrada';
+	alert('Evento logout...');
+});
+</script>
+
+<script type="text/javascript" src="https://login.ci.dru-id.com/login/sso"></script>
+<script type="text/javascript">
+function druid_sso_callback(oid) {
+  //your stuff
+  alert('druid_sso_callback: '+oid);
+}
+</script>
+</body>
+</html>

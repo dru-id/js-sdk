@@ -1,0 +1,19 @@
+{
+	"client_id": "711835520766204",
+	"redirections": {
+		"postLogin": "https://druid.lemurstaging.com/",
+		"register": "https://druid.lemurstaging.com/",
+		"postEditAccount": "https://druid.lemurstaging.com/"
+	},
+	"endpoints": {
+		"authorization_endpoint": "https://auth.ci.dru-id.com/oauth2/authorize",
+		"signup_endpoint": "https://auth.ci.dru-id.com/oauth2/authorize",
+		"logout_endpoint": "https://auth.ci.dru-id.com/oauth2/revoke",
+		"edit_account_endpoint": "https://register.ci.dru-id.com/register/edit_account_input",
+		"complete_account_endpoint": "https://register.ci.dru-id.com/register/complete_account_input",
+		"next_url": "https://auth.ci.dru-id.com/oauth2/authorize/redirect",
+		"cancel_url": "https://auth.ci.dru-id.com/oauth2/authorize/redirect",
+		"me": "https://graph.ci.dru-id.com/activityid/public/v1/user/me",
+		"logout": "https://graph.ci.dru-id.com/activityid/public/v1/user/leave"
+	}
+}
