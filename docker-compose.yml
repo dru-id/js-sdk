@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web:
+    restart: unless-stopped
+    image: nginx:mainline-alpine
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./:/usr/share/nginx/html:ro

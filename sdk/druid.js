@@ -6,17 +6,20 @@
 
 window.DRUID = {
 	config: {
+		log: 4,
 		client_id: null,
 		scope: null,
 		// URL
 		endpoints: {},
 		redirections: {},
 	},
-	log: function(...args) {
-		var c = 'color:#fff;margin-right:.3em;padding:.5em 1em;font-weight:bold;',
-			c1 = c+'background:#008fbe;',
-			c2 = c+'background:#c2d100;';
-		console.log('%cD%cR%cU%cI%cD', c1, c1, c1, c2, c2, ...args);
+	log: function(level, ...args) {
+		if(level <= this.config.log) {
+			var c = 'color:#fff;margin-right:.3em;padding:.5em 1em;font-weight:bold;',
+				c1 = c+'background:#008fbe;',
+				c2 = c+'background:#c2d100;';
+			console.log('%cD%cR%cU%cI%cD', c1, c1, c1, c2, c2, ...args);
+		}
 	},
 	// Helpers
 	H: {
@@ -70,7 +73,7 @@ window.DRUID = {
 
 		var url = this.H.URLBuilder(uri, params);
 		var body = body||null;
-		this.log('request ->', method, url);
+		this.log(4, 'request', method, url);
 		var that = this;
 
 		return new Promise(function(done, fail) {
@@ -107,7 +110,7 @@ window.DRUID = {
 	// Init
 	isInitialized: function() {
 		if(!this.initialized) {
-			this.log('not initialized');
+			this.log(1, 'not initialized');
 			//throw new Error('DRUID not initialized');
 		}
 		return this.initialized;
@@ -115,16 +118,17 @@ window.DRUID = {
 	initialized: false,
 	init: function(options, external) {
 
-		this.log('init...');
-
 		// options
-		this.config.scope = options.scope||null;
-		this.config.client_id = options.client_id||null;
-		this.config.redirections = options.redirections||{};
-		this.config.endpoints = options.endpoints||{};
+		this.config.log = options.log||this.config.log;
+		this.config.scope = options.scope||this.config.scope;
+		this.config.client_id = options.client_id||this.config.client_id;
+		this.config.redirections = options.redirections||this.config.redirections;
+		this.config.endpoints = options.endpoints||this.config.endpoints;
 
 		var that = this;
-		window.onload = function() {
+		window.addEventListener('load', function() {
+
+			that.log(1, 'init...');
 
 			// external
 			if(external) {
@@ -137,8 +141,8 @@ window.DRUID = {
 					that.log('error external json');
 				});
 			} else {
-				that.event('init');
 				that.initialized = true;
+				that.event('init');
 			}
 
 			// callback
@@ -146,12 +150,13 @@ window.DRUID = {
 				that.event('login');
 			}
 
-		};
+		});
 
 	},
 	event: function(name) {
+		this.log(2, 'event', name);
 		return document.dispatchEvent(
-			new CustomEvent('DRUID.'+name)
+			new CustomEvent('DRUID.'+name, { bubbles: true })
 		);
 	},
 	// Methods
@@ -161,6 +166,7 @@ window.DRUID = {
 	 * @return string The URL for login process.
 	 */
 	getUrlLogin: function(scope, urlCallback, social, prefill, state) {
+		this.log(3, 'method', 'getUrlLogin');
 		return this.H.URLBuilder(this.config.endpoints.authorization_endpoint, {
 			client_id: this.config.client_id,
 			redirect_uri: urlCallback||this.config.redirections.postLogin,
@@ -178,6 +184,7 @@ window.DRUID = {
 	 * @return string The URL for register process.
 	 */
 	getUrlRegister: function(scope, urlCallback, prefill, state) {
+		this.log(3, 'method', 'getUrlRegister');
 		return this.H.URLBuilder(this.config.endpoints.signup_endpoint, {
 			client_id: this.config.client_id,
 			redirect_uri: urlCallback||this.config.redirections.register,
@@ -195,6 +202,7 @@ window.DRUID = {
 	 * @return string The URL for edit account process.
 	 */
 	getUrlEditAccount: function(scope, urlCallback, state) {
+		this.log(3, 'method', 'getUrlEditAccount');
 		var params = { client_id: this.config.client_id, redirect_uri: urlCallback||this.config.redirections.postEditAccount }
 		return this.H.URLBuilder(this.config.endpoints.edit_account_endpoint, {
 			client_id: this.config.client_id,
@@ -211,6 +219,7 @@ window.DRUID = {
 	 * @return string The URL for complete process.
 	 */
 	getUrlCompleteAccount: function(scope, urlCallback, state) {
+		this.log(3, 'method', 'getUrlCompleteAccount');
 		var params = { client_id: this.config.client_id, redirect_uri: urlCallback||this.config.redirections.postEditAccount }
 		return this.H.URLBuilder(this.config.endpoints.complete_account_endpoint, {
 			client_id: this.config.client_id,
@@ -225,6 +234,7 @@ window.DRUID = {
 	 */
 	me: null,
 	getUserLogged: function(entrypoint) {
+		this.log(3, 'method', 'getUserLogged');
 		if(!this.isInitialized()) { return; }
 		this.me = this.me||this.request('GET', this.config.endpoints.me, null, null, {
 			"From-Origin": this.config.client_id,
@@ -236,12 +246,14 @@ window.DRUID = {
 	 * Helper to check if the user is connected (logged on DruID)
 	 */
 	isConnected: function(entrypoint) {
+		this.log(3, 'method', 'isConnected');
 		return this.getUserLogged(entrypoint).then(function() {});
 	},
 	/**
 	 * Checks if the user have been completed all required fields for that section.
 	 */
 	checkUserComplete: function(entrypoint) {
+		this.log(3, 'method', 'checkUserComplete');
 		return this.getUserLogged(entrypoint).then(function(data) {
 			if(data.result.status !== 200) { return Promise.reject(); }
 		});
@@ -250,6 +262,7 @@ window.DRUID = {
 	 * Performs the logout process.
 	 */
 	logoutUser: function(entrypoint) {
+		this.log(3, 'method', 'logoutUser');
 		if(!this.isInitialized()) { return; }
 		var that = this;
 		return this.request('GET', this.config.endpoints.logout, null, null, {

@@ -1,9 +1,9 @@
 {
-	"client_id": "711835520766204",
+	"client_id": "231705665113870",
 	"redirections": {
-		"postLogin": "https://druid.lemurstaging.com/",
-		"register": "https://druid.lemurstaging.com/",
-		"postEditAccount": "https://druid.lemurstaging.com/"
+		"postLogin": "http://js.dev.dru-id.com",
+		"register": "http://js.dev.dru-id.com",
+		"postEditAccount": "http://js.dev.dru-id.com"
 	},
 	"endpoints": {
 		"authorization_endpoint": "https://auth.ci.dru-id.com/oauth2/authorize",
